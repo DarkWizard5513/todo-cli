@@ -1,30 +1,31 @@
 from sys import argv, exit
 
-def add_task(tasks, task):
-    tasks.append((task, False))
 
-def list_tasks(tasks):
-    for index, task in enumerate(tasks):
-        if task[1]:
-            print(f"[X] {index+1} {task[0]}")
-        else:
-            print(f"[ ] {index+1} {task[0]}")
+def add_task(task):
+    with open("tasks.csv", "a") as file:
+        file.write(f"{task},F\n")
+        
 
-def mark_completed(tasks, task_index):
-    tasks[task_index][1] = not tasks[task_index][1]
+def list_tasks():
+    counter = 1
+    with open("tasks.csv", "r") as file:
+        line = file.readline().strip("\n")
+        while line:
+            items = line.split(",")
+            if items[1] == "F":
+                print(f"[ ] {counter} {items[0]}")
+            else:
+                print(f"[X] {counter} {items[0]}")
+
+            line = file.readline().strip("\n")
+            counter += 1
     
 
-tasks = []
-
 if argv[1] == "add":
-    add_task(tasks, argv[2])
+    add_task(argv[2])
 
 elif argv[1] == "list":
-    list_tasks(tasks)
-
-elif argv[1] == "done":
-    index = argv[2]
-    mark_completed(tasks, index-1)
+    list_tasks()
 
 else:
     exit()
