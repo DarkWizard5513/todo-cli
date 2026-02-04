@@ -21,11 +21,28 @@ def add_task(conn, cursor, task):
 def list_tasks(cursor):
     cursor.execute("SELECT * FROM tasks")
     results = cursor.fetchall()
-    for result in results:
+    for counter, result in enumerate(results):
         if result[2] == 0:
-            print(f"[ ] {result[0]} {result[1]}")
+            print(f"[ ] {counter+1} {result[1]}")
         else:
-            print(f"[X] {result[0]} {result[1]}")
+            print(f"[X] {counter+1} {result[1]}")
+
+
+def mark_complete(conn, cursor, task_number):
+    task_id = -1
+    cursor.execute("SELECT id FROM tasks")
+    results = cursor.fetchall()
+    for counter, result in enumerate(results):
+        if counter + 1 == int(task_number):
+            task_id = result[0]
+            break
+
+    if task_id == -1:
+        print(f"Task with number {task_number} not found in database.")
+    else:
+        cursor.execute("UPDATE tasks SET completed = 1 WHERE id = ?", (task_id,))
+        conn.commit()
+
 
 try:
     conn = sqlite3.connect("list.db")
@@ -42,6 +59,9 @@ if argv[1] == "add":
 
 elif argv[1] == "list":
     list_tasks(cursor)
+
+elif argv[1] == "done":
+    mark_complete(conn, cursor, argv[2])
 
 else:
     conn.close()
