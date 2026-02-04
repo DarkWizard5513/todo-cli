@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS tasks (
 def add_task(conn, cursor, task):
     cursor.execute("INSERT INTO tasks(description, completed) VALUES(?, ?)", (task, 0))
     conn.commit()
+    print("Task added.")
 
 
 def list_tasks(cursor):
@@ -23,9 +24,9 @@ def list_tasks(cursor):
     results = cursor.fetchall()
     for counter, result in enumerate(results):
         if result[2] == 0:
-            print(f"[ ] {counter+1} {result[1]}")
+            print(f"[ ] {counter+1}. {result[1]}")
         else:
-            print(f"[X] {counter+1} {result[1]}")
+            print(f"[X] {counter+1}. {result[1]}")
 
 
 def mark_complete(conn, cursor, task_number):
@@ -42,6 +43,24 @@ def mark_complete(conn, cursor, task_number):
     else:
         cursor.execute("UPDATE tasks SET completed = 1 WHERE id = ?", (task_id,))
         conn.commit()
+        print("Task completed.")
+
+
+def delete_task(conn, cursor, task_number):
+    task_id = -1
+    cursor.execute("SELECT id FROM tasks")
+    results = cursor.fetchall()
+    for counter, result in enumerate(results):
+        if counter + 1 == int(task_number):
+            task_id = result[0]
+            break
+
+    if task_id == -1:
+        print(f"Task with number {task_number} not found in database.")
+    else:
+        cursor.execute("DELETE FROM tasks WHERE id = ?", (task_id,))
+        conn.commit()
+        print("Task deleted.")
 
 
 try:
@@ -62,6 +81,9 @@ elif argv[1] == "list":
 
 elif argv[1] == "done":
     mark_complete(conn, cursor, argv[2])
+
+elif argv[1] == "delete":
+    delete_task(conn, cursor, argv[2])
 
 else:
     conn.close()
