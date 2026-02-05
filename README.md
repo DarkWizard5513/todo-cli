@@ -15,3 +15,6 @@ python3 main.py done [task number from list]
 
 # Delete task
 python3 main.py delete [task number from list]
+
+# Edit task
+python3 main.py edit [task number from list] [new task name]
