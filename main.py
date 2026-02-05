@@ -63,6 +63,23 @@ def delete_task(conn, cursor, task_number):
         print("Task deleted.")
 
 
+def edit_task(conn, cursor, task_number, new_description):
+    task_id = -1
+    cursor.execute("SELECT id FROM tasks")
+    results = cursor.fetchall()
+    for counter, result in enumerate(results):
+        if counter + 1 == int(task_number):
+            task_id = result[0]
+            break
+
+    if task_id == -1:
+        print(f"Task with number {task_number} not found in database.")
+    else:
+        cursor.execute("UPDATE tasks SET description = ? WHERE id = ?", (new_description, task_id))
+        conn.commit()
+        print("Task edited.")
+
+
 try:
     conn = sqlite3.connect("list.db")
 except:
@@ -84,6 +101,9 @@ elif argv[1] == "done":
 
 elif argv[1] == "delete":
     delete_task(conn, cursor, argv[2])
+
+elif argv[1] == "edit":
+    edit_task(conn, cursor, argv[2], argv[3])
 
 else:
     conn.close()
